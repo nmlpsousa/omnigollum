@@ -45,7 +45,6 @@ module Omnigollum
     def user_has_permission?
       options = settings.send(:omnigollum)
       user = get_user
-      puts user.email
       if !options[:authorized_users][user.email].nil?
         regex = options[:roles][options[:authorized_users][user.email]]
         return request.path =~ regex
