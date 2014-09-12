@@ -312,6 +312,11 @@ module Omnigollum
       app.before('/*') {
         if !user_authed?
           user_auth
+        else
+          @title   = 'Authentication failed'
+          @subtext = 'Insufficient permissions'
+          @auth_params = "?origin=#{CGI.escape(request.env['omniauth.origin'])}" unless request.env['omniauth.origin'].nil?
+          show_error unless user_has_permission?
         end
       }
 
