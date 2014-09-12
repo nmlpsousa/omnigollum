@@ -299,7 +299,10 @@ module Omnigollum
       end
 
       # Pre-empt protected routes
-      options[:protected_routes].each {|route| app.before(route) {user_auth unless user_authed?}}
+      #options[:protected_routes].each {|route| app.before(route) {user_auth unless user_authed?}}
+      app.before('/*') {
+        user_auth unless user_authed?
+      }
 
       # Write the actual config back to the app instance
       app.set(:omnigollum, options)
