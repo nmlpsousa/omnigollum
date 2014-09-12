@@ -312,6 +312,7 @@ module Omnigollum
       app.before('/*') {
         if !user_authed?
           user_auth
+        end
       }
 
       # Write the actual config back to the app instance
