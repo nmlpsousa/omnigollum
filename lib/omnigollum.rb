@@ -42,6 +42,15 @@ module Omnigollum
       session.has_key? :omniauth_user
     end
 
+    def user_has_permission?
+      if options[:authorized_users][@email]
+        regex = options[:roles][options[:authorized_users][@email]]
+        return request.path =~ regex
+      else
+        return false
+      end
+    end
+
     def user_auth
       @title   = 'Authentication is required'
       @subtext = 'Please choose a login service'
@@ -301,7 +310,8 @@ module Omnigollum
       # Pre-empt protected routes
       #options[:protected_routes].each {|route| app.before(route) {user_auth unless user_authed?}}
       app.before('/*') {
-        user_auth unless user_authed?
+        if !user_authed?
+          user_auth
       }
 
       # Write the actual config back to the app instance
