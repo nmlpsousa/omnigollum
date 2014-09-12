@@ -43,7 +43,7 @@ module Omnigollum
     end
 
     def user_has_permission?
-      if options[:authorized_users][@email]
+      if !options[:authorized_users][@email].nil?
         regex = options[:roles][options[:authorized_users][@email]]
         return request.path =~ regex
       else
