@@ -311,6 +311,8 @@ module Omnigollum
 
       # Pre-empt protected routes
       #options[:protected_routes].each {|route| app.before(route) {user_auth unless user_authed?}}
+
+      #Filtro que verifica se o utilizador tem permissão para aceder a determinada página
       app.before('/*') {
         if !user_authed?
           user_auth
@@ -321,7 +323,7 @@ module Omnigollum
           show_error unless user_has_permission?
         end
       }
-
+      
       # Write the actual config back to the app instance
       app.set(:omnigollum, options)
     end
