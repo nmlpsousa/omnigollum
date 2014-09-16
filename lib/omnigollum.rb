@@ -271,7 +271,7 @@ module Omnigollum
             if !options[:authorized_users].empty? && !options[:authorized_users].include?(user.email) &&
                !options[:authorized_users].include?(user.nickname)
               @title   = 'Authorization failed'
-              @subtext = 'User was not found in the authorized users list'
+              @subtext = 'User was not found in the authorized users list. You need to check with the system admin if you have clearance.'
               @auth_params = "?origin=#{CGI.escape(request.env['omniauth.origin'])}" unless request.env['omniauth.origin'].nil?
               show_error
             end
