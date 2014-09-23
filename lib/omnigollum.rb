@@ -2,6 +2,7 @@ require 'cgi'
 require 'omniauth'
 require 'mustache/sinatra'
 require 'sinatra/base'
+require 'sqlite3'
 
 module Omnigollum
   module Views; class Layout < Mustache; end; end
@@ -45,9 +46,19 @@ module Omnigollum
     def user_has_permission?
       options = settings.send(:omnigollum)
       user = get_user
-      if !options[:authorized_users][user.email].nil?
-        regex = options[:roles][options[:authorized_users][user.email]]
-        return request.path =~ regex
+      db = SQLite3::Database.open "weaki.db"
+      result = db.execute "SELECT regexp FROM Users INNER JOIN UsersRoles ON Users.email=UsersRoles.email INNER JOIN Roles ON UsersRoles.type=Roles.type WHERE Users.email = ? ;", user.email
+      flag = false
+      if !result.empty?
+        result.each { |regexp|
+          regexp = regexp.first
+          r = Regexp.new regexp
+          flag = (request.path =~ r)
+          if flag
+            break
+          end
+        }
+        return flag
       else
         return false
       end
@@ -324,6 +335,7 @@ module Omnigollum
         end
       }
       
+
       # Write the actual config back to the app instance
       app.set(:omnigollum, options)
     end
