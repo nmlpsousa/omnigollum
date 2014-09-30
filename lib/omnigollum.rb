@@ -46,14 +46,30 @@ module Omnigollum
     def user_has_permission?
       options = settings.send(:omnigollum)
       user = get_user
-      db = SQLite3::Database.open "weaki.db"
-      result = db.execute "SELECT regexp FROM Users INNER JOIN UsersRoles ON Users.email=UsersRoles.email INNER JOIN Roles ON UsersRoles.type=Roles.type WHERE Users.email = ? ;", user.email
+      db = SQLite3::Database.open "weaki_v2.db"
+      result = db.execute "select regex, crud from Users INNER JOIN UsersRoles ON Users.email=UsersRoles.email INNER JOIN Roles ON UsersRoles.role=Roles.name where Users.email = ?", user.email
+      db.close
       flag = false
       if !result.empty?
-        result.each { |regexp|
-          regexp = regexp.first
-          r = Regexp.new regexp
-          flag = (request.path =~ r)
+        result.each { |row|
+          regex_string = row[0]
+          crud = row[1]
+          regex = Regexp.new regex_string
+          requestpath = request.path
+          
+          if requestpath =~ /^\/create\/.*/
+            cleanpath = requestpath.slice "/create"
+            flag = (cleanpath =~ regex) && crud >= 2
+          elsif requestpath =~ /^\/edit\/.*/
+            cleanpath = requestpath.slice "/edit"
+            flag = (cleanpath =~ regex) && crud >= 1
+          elsif requestpath =~ /^\/delete\/.*/
+            cleanpath = requestpath.slice "/delete"
+            flag = (cleanpath =~ regex) && crud >= 3
+          else
+            flag = (requestpath =~ regex) && crud >= 0
+          end
+            
           if flag
             break
           end
