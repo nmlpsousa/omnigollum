@@ -47,7 +47,10 @@ module Omnigollum
       options = settings.send(:omnigollum)
       user = get_user
       db = SQLite3::Database.open "weaki_v2.db"
-      result = db.execute "select regex, crud from Users INNER JOIN UsersRoles ON Users.email=UsersRoles.email INNER JOIN Roles ON UsersRoles.role=Roles.name where Users.email = ?", user.email
+
+      # Here we use the nickname from Github, instead of the email, for better compatibility (public email isn't mandatory and some users couldn't log into the Weaki)
+      result = db.execute "select regex, crud from Users INNER JOIN UsersRoles ON Users.email=UsersRoles.email INNER JOIN Roles ON UsersRoles.role=Roles.name where Users.email = ?", user.nickname
+
       db.close
       flag = false
       if !result.empty?
@@ -294,14 +297,15 @@ module Omnigollum
           if !request.env['omniauth.auth'].nil?
             user = Omnigollum::Models::OmniauthUser.new(request.env['omniauth.auth'], options)
 
+            # We don't need to check authorized users here, since we do it in another filter in the end of the file
             # Check authorized users
-            if !options[:authorized_users].empty? && !options[:authorized_users].include?(user.email) &&
-               !options[:authorized_users].include?(user.nickname)
-              @title   = 'Authorization failed'
-              @subtext = 'User was not found in the authorized users list. You need to check with the system admin if you have clearance.'
-              @auth_params = "?origin=#{CGI.escape(request.env['omniauth.origin'])}" unless request.env['omniauth.origin'].nil?
-              show_error
-            end
+            # if !options[:authorized_users].empty? && !options[:authorized_users].include?(user.email) &&
+            #    !options[:authorized_users].include?(user.nickname)
+            #   @title   = 'Authorization failed'
+            #   @subtext = 'User was not found in the authorized users list. You need to check with the system admin if you have clearance.'
+            #   @auth_params = "?origin=#{CGI.escape(request.env['omniauth.origin'])}" unless request.env['omniauth.origin'].nil?
+            #   show_error
+            # end
 
             session[:omniauth_user] = user
 
