@@ -46,7 +46,8 @@ module Omnigollum
     def user_has_permission?
       options = settings.send(:omnigollum)
       user = get_user
-      db = SQLite3::Database.open "weaki_v2.db"
+      dbfile = settings.wiki_options[:dbfile].to_s
+      db = SQLite3::Database.open dbfile
 
       # Here we use the nickname from Github, instead of the email, for better compatibility (public email isn't mandatory and some users couldn't log into the Weaki)
       result = db.execute "select regex, crud from Users INNER JOIN UsersRoles ON Users.email=UsersRoles.email INNER JOIN Roles ON UsersRoles.role=Roles.name where Users.email = ?", user.nickname
