@@ -10,7 +10,7 @@ module Omnigollum
     class OmniauthUserInitError < StandardError; end
 
     class User
-      attr_reader :uid, :name, :email, :nickname, :provider
+      attr_reader :uid, :name, :email, :nickname, :provider, :avatar_url
     end
 
     class OmniauthUser < User
@@ -30,6 +30,10 @@ module Omnigollum
         raise OmniauthUserInitError, "Insufficient data from authentication provider, email not provided or empty" if !@email || @email.empty?
 
         @nickname = hash['info']['nickname'].to_s.strip if hash['info'].has_key?('nickname')
+
+        @avatar_url = hash['info']['image'].to_s.strip if hash['info'].has_key?('image')
+
+        p hash['info']
 
         @provider = hash['provider']
 
