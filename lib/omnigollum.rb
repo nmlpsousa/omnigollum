@@ -33,8 +33,6 @@ module Omnigollum
 
         @avatar_url = hash['info']['image'].to_s.strip if hash['info'].has_key?('image')
 
-        p hash['info']
-
         @provider = hash['provider']
 
         self
